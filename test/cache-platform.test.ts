@@ -4,7 +4,7 @@ import { createCachePlatformPlan } from "../src/cache-platform.js";
 
 test("cache platform plan exports endpoint and user-group metadata", () => {
   const plan = createCachePlatformPlan({
-    serviceName: "Atlas Cache",
+    serviceName: "Shared Cache",
     stage: "prod",
     region: "us-east-1",
     hostedZoneName: "example.internal",

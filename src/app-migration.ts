@@ -1,4 +1,25 @@
-export function planApplicationMigration({ applicationName, keyspace, previousSecretSource }) {
+export type ApplicationMigrationInput = {
+  applicationName: string;
+  keyspace: string;
+  previousSecretSource: string;
+};
+
+export type ApplicationMigrationStep = {
+  step:
+    | "create-service-user"
+    | "inject-secret-arn"
+    | "grant-secret-read"
+    | "switch-client"
+    | "health-check"
+    | "remove-old-config";
+  detail: string;
+};
+
+export function planApplicationMigration({
+  applicationName,
+  keyspace,
+  previousSecretSource
+}: ApplicationMigrationInput): ApplicationMigrationStep[] {
   return [
     {
       step: "create-service-user",

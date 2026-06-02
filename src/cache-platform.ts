@@ -1,13 +1,42 @@
 export const REDIS_PORT = 6379;
 
-const ensureNonEmpty = (value, field) => {
+export type CachePlatformPlanInput = {
+  serviceName: string;
+  stage: string;
+  region: string;
+  hostedZoneName: string;
+  subnetIds?: string[];
+  securityGroupIds?: string[];
+};
+
+export type CachePlatformPlan = {
+  cache: {
+    engine: "redis";
+    name: string;
+    port: typeof REDIS_PORT;
+    subnetIds: string[];
+    securityGroupIds: string[];
+    userGroupId: string;
+  };
+  exports: {
+    endpoint: string;
+    userGroupId: string;
+    userGroupArnParameter: string;
+    endpointParameter: string;
+  };
+};
+
+const ensureNonEmpty = (value: unknown, field: string): string => {
   if (typeof value !== "string" || value.trim() === "") {
     throw new Error(`${field} is required`);
   }
   return value.trim();
 };
 
-export function buildCacheEndpoint({ region, hostedZoneName }) {
+export function buildCacheEndpoint({
+  region,
+  hostedZoneName
+}: Pick<CachePlatformPlanInput, "region" | "hostedZoneName">): string {
   return `cache.${ensureNonEmpty(region, "region")}.${ensureNonEmpty(hostedZoneName, "hostedZoneName")}`;
 }
 
@@ -18,7 +47,7 @@ export function createCachePlatformPlan({
   hostedZoneName,
   subnetIds,
   securityGroupIds
-}) {
+}: CachePlatformPlanInput): CachePlatformPlan {
   const normalizedService = ensureNonEmpty(serviceName, "serviceName")
     .toLowerCase()
     .replace(/[^a-z0-9-]/g, "-")

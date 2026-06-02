@@ -1,6 +1,40 @@
 import { REDIS_PORT } from "./cache-platform.js";
 
-export function normalizeServiceUser(serviceName) {
+export type RedisSecret = {
+  host: string;
+  port: typeof REDIS_PORT;
+  username: string;
+  keyspace: string;
+  password: string;
+  tls?: boolean;
+};
+
+export type ServiceSecretInput = {
+  serviceName: string;
+  keyspace: string;
+  endpoint: string;
+  passwordToken?: string;
+};
+
+export type RedisUserPatternInput = ServiceSecretInput & {
+  userGroupId: string;
+};
+
+export type RedisUserPattern = {
+  secretName: string;
+  secret: RedisSecret;
+  user: {
+    userId: string;
+    username: string;
+    accessString: string;
+  };
+  userGroupMembership: {
+    userGroupId: string;
+    userIdsToAdd: string[];
+  };
+};
+
+export function normalizeServiceUser(serviceName: string): string {
   const normalized = serviceName
     .toLowerCase()
     .replace(/[^a-z0-9]/g, "")
@@ -13,7 +47,7 @@ export function normalizeServiceUser(serviceName) {
   return normalized;
 }
 
-export function normalizeKeyspace(keyspace) {
+export function normalizeKeyspace(keyspace: string): string {
   const normalized = keyspace
     .toLowerCase()
     .replace(/[^a-z0-9-]/g, "-")
@@ -26,12 +60,17 @@ export function normalizeKeyspace(keyspace) {
   return normalized;
 }
 
-export function buildAccessString(keyspace) {
+export function buildAccessString(keyspace: string): string {
   const privateKeyspace = normalizeKeyspace(keyspace);
   return `on ~${privateKeyspace}:* ~common:* +@all`;
 }
 
-export function createServiceSecret({ serviceName, keyspace, endpoint, passwordToken = "${generated}" }) {
+export function createServiceSecret({
+  serviceName,
+  keyspace,
+  endpoint,
+  passwordToken = "${generated}"
+}: ServiceSecretInput): RedisSecret {
   return {
     host: endpoint,
     port: REDIS_PORT,
@@ -41,7 +80,12 @@ export function createServiceSecret({ serviceName, keyspace, endpoint, passwordT
   };
 }
 
-export function createRedisUserPattern({ serviceName, keyspace, endpoint, userGroupId }) {
+export function createRedisUserPattern({
+  serviceName,
+  keyspace,
+  endpoint,
+  userGroupId
+}: RedisUserPatternInput): RedisUserPattern {
   const secret = createServiceSecret({ serviceName, keyspace, endpoint });
 
   return {

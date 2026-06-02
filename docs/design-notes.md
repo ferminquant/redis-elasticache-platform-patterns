@@ -14,13 +14,13 @@ The useful platform layer is not a large service. It is a small set of conventio
 
 ## Pattern
 
-The example splits the work into three layers:
+The TypeScript example splits the work into three layers:
 
 - `CachePlatform`: shared ElastiCache Serverless shape and exported metadata.
 - `RedisUserPattern`: per-service secret, keyspace, and connection grants.
 - `RedisConnectionConfig`: runtime boundary for Lambda code.
 
-The user-management handler is modeled as a planner instead of an AWS custom resource so tests can cover the behavior without an account.
+The user-management handler is modeled as a planner instead of an AWS custom resource so tests can cover the behavior without an account. The exported types make the intended inputs and actions visible without needing to read a generated CloudFormation template.
 
 ## Tradeoffs
 
